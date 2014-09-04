@@ -2,27 +2,29 @@ SelecTable.js
 ==================
 
 This piece of code allows every table to be turned into a user friendly seletable table. Each row can be selected by 
-clicking on it and marked by a user defined class (by default <code>class="selected"</code>).
+clicking on it and marked by a user defined class (by default <code>class="selected"</code>). You can also safely select multiple rows by pressing the CTRL or SHIFT key. 
 
-You can also safely select multiple rows by pressing the CTRL or SHIFT key. 
+Note that you **don't** need JQuery
 
-Nothing special in the table:
+
+
+
 ```HTML
 <table class="my-selectable">
   <thead>
-	<tr>
-    <th>
-      <!-- add here the checkbox to toggle all --> 
-      <input type="checkbox" id="all_checkbox" />
-    </th>
-    <th>Filename</th>
-	</tr>
+    <tr>
+      <th>
+        <!-- add here the checkbox to toggle all --> 
+        <input type="checkbox" id="all_checkbox" />
+      </th>
+      <th>Filename</th>
+    </tr>
   </thead>
   <tbody>
-  	<tr>
+    <tr>
       <td><input id="file_001" type="checkbox" /></td>
       <td class="">Somefile.jpg</td>
-  	</tr>
+    </tr>
     <tr>
       <td><input id="file_002" type="checkbox" /></td>
       <td>Somefile2.jpg</td>
