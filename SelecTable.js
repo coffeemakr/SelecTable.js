@@ -21,6 +21,7 @@
     // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     // THE SOFTWARE.
 
+
 function clear_selection(){
     if (window.getSelection) {
       if (window.getSelection().empty) {  // Chrome
@@ -65,10 +66,10 @@ var SelecTable = function(table, options)
 
     // assuming we have only one body
     this.rows = this.table.tBodies[0].rows;
-    this.checkboxes = new Array();
     this.selected = null;
     this.selectedCount = 0;
     // configure checkboxes
+
 
 
     if(this.config.allCheckbox)
@@ -89,34 +90,33 @@ var SelecTable = function(table, options)
         if(checkbox.checked)
             this.select(row_i);
         this.rows[row_i].onclick = this.getRowOnclick()
-        this.checkboxes.push(checkbox);
+        this.rows[row_i].checkbox = checkbox;
+        this.rows[row_i].checkbox.row = this.rows[row_i];
     }
 }
-
 
 SelecTable.prototype.select = function(index, changefocus){
     if(typeof(changefocus) === 'undefined') changefocus = true;
     index = this.getRowIndex(index);
-
     if (changefocus){
         if(this.config.cssFocused)
         {
             if (this.selected != null)
             {
-                this.rows[this.selected].className = this.rows[this.selected].className.replace(this.reFocused, "");
+                this.selected.className = this.selected.className.replace(this.reFocused, "");
             }
             this.rows[index].className += ' ' + this.config.cssFocused;
         }
-        this.selected = index;
+        this.selected = this.rows[index];
         if (this.config.focusCheckbox)
-            this.checkboxes[index].focus();
+            this.rows[index].checkbox.focus();
     }
     if (this.config.cssSelected)
         this.rows[index].className += ' ' + this.config.cssSelected;
-    if(!this.checkboxes[index].checked)
+    if(!this.rows[index].checkbox.checked)
         // increment counter only if it wasn't checked
         this.selectedCount += 1;
-    this.checkboxes[index].checked = true;
+    this.rows[index].checkbox.checked = true;
 };
 
 SelecTable.prototype.unselect = function(index)
@@ -126,16 +126,16 @@ SelecTable.prototype.unselect = function(index)
     {
         this.rows[index].className = this.rows[index].className.replace(this.reSelected, "");
     }
-    if(this.checkboxes[index].checked)
+    if(this.rows[index].checkbox.checked)
         // decrement counter only if it was checked
         this.selectedCount -= 1;
-    this.checkboxes[index].checked = false;
+    this.rows[index].checkbox.checked = false;
 };
 
 SelecTable.prototype.toggle = function(index)
 {
     index = this.getRowIndex(index);
-    if(this.checkboxes[index].checked) this.unselect(index);
+    if(this.rows[index].checkbox.checked) this.unselect(index);
     else this.select(index);
 };
 
@@ -146,7 +146,7 @@ SelecTable.prototype.getRowIndex = function(row){
 
 SelecTable.prototype.getRowIsSelected = function(row)
 {
-    return this.checkboxes[this.getRowIndex(row)].checked;
+    return this.rows[this.getRowIndex(row)].checkbox.checked;
 }
 
 SelecTable.prototype.selectAll = function()
@@ -227,7 +227,7 @@ SelecTable.prototype.getCheckboxOnclick = function(checkbox)
     return function(e)
     {
         e.stopPropagation();
-        var index = table.checkboxes.indexOf(this);
+        var index = table.checkboxes.indexOf(this).row;
         if(this.checked)
             table.select(index);
         else
