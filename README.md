@@ -1,7 +1,10 @@
 SelecTable.js
 ==================
 
-Selectable Tables.
+This piece of code allows every table to be turned into a user friendly seletable table. Each row can be selected by 
+clicking on it and marked by a user defined class (by default <code>class="selected"</code>).
+
+You can also safely select multiple rows by pressing the CTRL or SHIFT key. 
 
 Nothing special in the table:
 ```HTML
