@@ -34,6 +34,7 @@ function clear_selection(){
     }
 }
 
+/** @constructor */
 var SelecTable = function(table, options)
 {
     var checkbox, row_i, cb_i;
@@ -41,7 +42,7 @@ var SelecTable = function(table, options)
         'cssSelected': 'selected',
         'cssFocused': 'focused',
         'focusCheckbox': true,
-        'allCheckbox': false,
+        'allCheckbox': false
     }
 
     // parse options to this.config
@@ -83,7 +84,7 @@ var SelecTable = function(table, options)
     for(row_i=0; row_i<this.rows.length; row_i++)
     {
         checkbox = this.rows[row_i].getElementsByTagName('input');
-        for(cb_i=0; cb_i < checkbox.length && checkbox[cb_i].type != "checkbox"; cb_i++);
+        for(cb_i=0; cb_i < checkbox.length && checkbox[cb_i].type != "checkbox"; cb_i++){}
         checkbox = checkbox[cb_i];
         this.rows[row_i].setAttribute('unselectable', 'on'); // IE fix
         checkbox.onclick = this.getCheckboxOnclick();
