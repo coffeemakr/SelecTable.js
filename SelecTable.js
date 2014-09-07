@@ -89,7 +89,7 @@ var SelecTable = function(table, options)
         this.rows[row_i].setAttribute('unselectable', 'on'); // IE fix
         checkbox.onclick = this.getCheckboxOnclick();
         if(checkbox.checked)
-            this.select(row_i);
+            this.select(row_i, true);
         this.rows[row_i].onclick = this.getRowOnclick()
         this.rows[row_i].checkbox = checkbox;
         this.rows[row_i].checkbox.row = this.rows[row_i];
@@ -137,7 +137,7 @@ SelecTable.prototype.toggle = function(index)
 {
     index = this.getRowIndex(index);
     if(this.rows[index].checkbox.checked) this.unselect(index);
-    else this.select(index);
+    else this.select(index, true);
 };
 
 SelecTable.prototype.getRowIndex = function(row){
@@ -153,7 +153,7 @@ SelecTable.prototype.getRowIsSelected = function(row)
 SelecTable.prototype.selectAll = function()
 {
     for(var i=this.rows.length - 1; i >= 0; i--)
-        this.select(i);
+        this.select(i, true);
 };
 
 SelecTable.prototype.getAllCheckboxOnchange = function()
@@ -222,7 +222,7 @@ SelecTable.prototype.getRowOnclick = function()
     }
 }
 
-SelecTable.prototype.getCheckboxOnclick = function(checkbox)
+SelecTable.prototype.getCheckboxOnclick = function()
 {
     var table = this;
     return function(e)
@@ -230,7 +230,7 @@ SelecTable.prototype.getCheckboxOnclick = function(checkbox)
         e.stopPropagation();
         var index = table.checkboxes.indexOf(this).row;
         if(this.checked)
-            table.select(index);
+            table.select(index, true);
         else
             table.unselect(index);
     }
