@@ -36,10 +36,8 @@
  */
 var SelecTable = function(table, options)
 {
-    /** @type{HTMLElement} */
-    var checkbox
     /** @type{!NodeList} */
-    var inputs
+    var inputs;
     /** @type{number} */
     var row_i;
     /** @type{number} */
@@ -84,11 +82,13 @@ var SelecTable = function(table, options)
     {
             // prevent row from beiing clicked
             e.stopPropagation();
-            var index = this['row'];
+            var row = this['row'];
             if(this.checked)
-                sTable.select(index, true);
-            else
-                sTable.unselect(index);
+            {
+                sTable.select(row, true);
+            } else {
+                sTable.unselect(row);
+            }
     }
 
     
@@ -202,7 +202,7 @@ var SelecTable = function(table, options)
         }
         
     }
-    /** @type {Array.<HTMLElement>} */
+    /** @type {Array.<!HTMLElement>} */
     this.rows = rows;
 }
 
@@ -214,9 +214,8 @@ var SelecTable = function(table, options)
  */
 SelecTable.prototype.select = function(index, changefocus){
     if(typeof(changefocus) === 'undefined') changefocus = true;
-    index = this._getRowIndex(index);
-    /** @type{HTMLElement} */
-    var row = this.rows[index];
+    /** @type{!HTMLElement} */ 
+    var row = this._getRow(index);
     /** @type{HTMLElement} */
     var checkbox = row['checkbox'];
 
@@ -229,7 +228,7 @@ SelecTable.prototype.select = function(index, changefocus){
             }
             row.className += ' ' + this.config['cssFocused'];
         }
-        this.selected = this.rows[index];
+        this.selected = row;
         if (this.config['focusCheckbox'] && checkbox)
         {
             checkbox.focus();
@@ -250,9 +249,8 @@ SelecTable.prototype.select = function(index, changefocus){
  */
 SelecTable.prototype.unselect = function(index)
 {
-    index = this._getRowIndex(index);
-    /** @type{HTMLElement} */
-    var row = this.rows[index];
+    /** type{!HTMLElement} */
+    var row = this._getRow(index);
     /** @type{HTMLElement} */
     var checkbox = row['checkbox'];
     if (this.reSelected)
@@ -273,14 +271,17 @@ SelecTable.prototype.unselect = function(index)
  */
 SelecTable.prototype.toggle = function(index)
 {
-    index = this._getRowIndex(index);
-    if(this.rows[index]['checkbox'].checked) this.unselect(index);
-    else this.select(index, true);
+    /** @type{!HTMLElement} */
+    var row = this._getRow(index);
+    if(row['checkbox'].checked) this.unselect(row);
+    else this.select(row, true);
 };
 
 
 /**
  * @param {!HTMLElement|number} row The row number or object to unselect.
+ * @return {number}
+ * 
  * @private
  */
 SelecTable.prototype._getRowIndex = function(row){
@@ -291,8 +292,22 @@ SelecTable.prototype._getRowIndex = function(row){
 
 
 /**
+ * @param {number|!HTMLElement} row The row or the index to it.$
+ * @return {!HTMLElement}
+ * 
+ * @private
+ */
+SelecTable.prototype._getRow = function(row){
+    if (typeof row === 'number') return this.rows[row];
+    if(!row || typeof row.nodeType !== 'number' && row.nodeType == 3) throw row;
+    return row;
+}
+
+
+/**
  * @param {!HTMLElement|number} row
- * @return {boolean} 
+ * @return {boolean}
+ * 
  */
  SelecTable.prototype.getRowIsSelected = function(row)
 {
@@ -303,6 +318,7 @@ SelecTable.prototype._getRowIndex = function(row){
 /**
  * Returns the currently selected row.
  * @return{?HTMLElement}
+ * 
  */
 SelecTable.prototype.getSelectedRow = function()
 {
@@ -315,7 +331,7 @@ SelecTable.prototype.getSelectedRow = function()
 SelecTable.prototype.selectAll = function()
 {
     for(var i=this.rows.length - 1; i >= 0; i--)
-        this.select(i, true);
+        this.select(this.rows[i], true);
 };
 
 /**
@@ -323,14 +339,12 @@ SelecTable.prototype.selectAll = function()
  */
 SelecTable.prototype.selectOnly = function(index)
 {
-    index = this._getRowIndex(index);
     this.unselectAll();
     this.select(index);
 }
 /**
  * @param {!HTMLElement|number} start
- * @param {!HTMLElement|number} stop
- * @private
+ * @param {!HTMLElement|number} stop * @private
  */
 SelecTable.prototype.selectRange = function(start, stop)
 {
