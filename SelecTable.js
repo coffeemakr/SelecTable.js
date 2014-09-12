@@ -1,26 +1,31 @@
+// ==ClosureCompiler==
+// @compilation_level ADVANCED_OPTIMIZATIONS
+// @output_file_name SelecTable.js
+// ==/ClosureCompiler==
 
-    // The MIT License (MIT)
-
-    // Copyright (c) 2014 c0ff3m4r <l34k@bk.ru>
-
-    // Permission is hereby granted, free of charge, to any person obtaining a copy
-    // of this software and associated documentation files (the "Software"), to deal
-    // in the Software without restriction, including without limitation the rights
-    // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    // copies of the Software, and to permit persons to whom the Software is
-    // furnished to do so, subject to the following conditions:
-
-    // The above copyright notice and this permission notice shall be included in
-    // all copies or substantial portions of the Software.
-
-    // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    // THE SOFTWARE.
-
+/** 
+ * @license The MIT License (MIT)
+ * 
+ * Copyright (c) 2014 c0ff3m4r <l34k@bk.ru>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 function clear_selection(){
     if (window.getSelection) {
@@ -34,10 +39,17 @@ function clear_selection(){
     }
 }
 
-/** @constructor */
+/**
+ * @constructor
+ * @param {Element|string} table The table element or its Id.
+ * @param {Object} options       Options
+ * @export 
+ */
 var SelecTable = function(table, options)
 {
     var checkbox, row_i, cb_i;
+    
+    /** @dict */
     this.defaults = {
         'cssSelected': 'selected',
         'cssFocused': 'focused',
@@ -46,6 +58,7 @@ var SelecTable = function(table, options)
     }
 
     // parse options to this.config
+    /** @type {!Object} */
     this.config = {}
     for (variable in this.defaults)
     {
@@ -67,7 +80,10 @@ var SelecTable = function(table, options)
 
     // assuming we have only one body
     this.rows = this.table.tBodies[0].rows;
+    
+    /** @type {?number} */
     this.selected = null;
+    /** @type {number} */
     this.selectedCount = 0;
     // configure checkboxes
 
@@ -96,6 +112,12 @@ var SelecTable = function(table, options)
     }
 }
 
+/**
+ * Select a row.
+ * @param {!Element|number} index The row number or object to select.
+ * @param {boolean=} changefocus Change the focus to this element?.
+ * @export 
+ */
 SelecTable.prototype.select = function(index, changefocus){
     if(typeof(changefocus) === 'undefined') changefocus = true;
     index = this.getRowIndex(index);
@@ -120,6 +142,10 @@ SelecTable.prototype.select = function(index, changefocus){
     this.rows[index].checkbox.checked = true;
 };
 
+/**
+ * @param {!Element|number} index The row number or object to unselect.
+ * @export 
+ */
 SelecTable.prototype.unselect = function(index)
 {
     index = this.getRowIndex(index);
@@ -133,6 +159,10 @@ SelecTable.prototype.unselect = function(index)
     this.rows[index].checkbox.checked = false;
 };
 
+/**
+ * @param {!Element|number} index The row number or object to toggle.
+ * @export 
+ */
 SelecTable.prototype.toggle = function(index)
 {
     index = this.getRowIndex(index);
@@ -140,22 +170,40 @@ SelecTable.prototype.toggle = function(index)
     else this.select(index, true);
 };
 
+
+/**
+ * @param {!Element|number} row The row number or object to unselect.
+ */
 SelecTable.prototype.getRowIndex = function(row){
+    if (typeof o === 'number') return row;
     if (typeof row.rowIndex == "undefined") return row;
     return row.rowIndex - this.table.tHead.rows.length;
 }
 
-SelecTable.prototype.getRowIsSelected = function(row)
+
+/**
+ * @param {!Element|number} row The row number or object to unselect.
+ * @export 
+ */
+ SelecTable.prototype.getRowIsSelected = function(row)
 {
     return this.rows[this.getRowIndex(row)].checkbox.checked;
 }
 
+
+/**
+ * Select all 
+ */
 SelecTable.prototype.selectAll = function()
 {
     for(var i=this.rows.length - 1; i >= 0; i--)
         this.select(i, true);
 };
 
+/**
+ * Get Onchange Function for the checkbox which controlls
+ * all rows. 
+ */
 SelecTable.prototype.getAllCheckboxOnchange = function()
 {
     var table = this
@@ -169,15 +217,22 @@ SelecTable.prototype.getAllCheckboxOnchange = function()
         }
     }
 }
-
-SelecTable.prototype.select_only = function(index)
+/**
+ *
+ * @param {!Element|number} index
+ */
+SelecTable.prototype.selectOnly = function(index)
 {
     index = this.getRowIndex(index);
     this.unselectAll();
     this.select(index);
 }
-
-SelecTable.prototype.select_range = function(start, stop)
+/**
+ *
+ * @param {!Element|number} start
+ * @param {!Element|number} stop
+ */
+SelecTable.prototype.selectRange = function(start, stop)
 {
     var i, a=1;
     start = this.getRowIndex(start);
@@ -206,12 +261,12 @@ SelecTable.prototype.getRowOnclick = function()
             table.toggle(this);
         }else if (event.shiftKey == 1){
             if (table.selected != null)
-                table.select_range(table.selected, this);
+                table.selectRange(table.selected, this);
         }else{
             // select it if it wasn't selected already
             // or if the object wasn't the only one
             if(!table.getRowIsSelected(this) || table.selectedCount > 1)
-                table.select_only(this);
+                table.selectOnly(this);
             else
                 table.unselectAll();
         }
@@ -227,11 +282,14 @@ SelecTable.prototype.getCheckboxOnclick = function()
     var table = this;
     return function(e)
     {
+
         e.stopPropagation();
-        var index = table.checkboxes.indexOf(this).row;
+        var index = this.row;
         if(this.checked)
             table.select(index, true);
         else
             table.unselect(index);
     }
 }
+
+window['SelecTable'] = SelecTable;
