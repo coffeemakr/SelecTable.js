@@ -158,7 +158,7 @@ SelecTable.prototype.toggle = function(index){
 SelecTable.prototype.getRowOnclick = function(){
     var table = this;
     return function(e){
-        e.stopPropagation();
+        //e.stopPropagation();
         // select functionallity
         var i, index, rows;
         if (event.ctrlKey == 1) {
