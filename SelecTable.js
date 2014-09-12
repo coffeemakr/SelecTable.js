@@ -5,10 +5,9 @@
 
 /** 
  * @license The MIT License (MIT)
- * 
  * Copyright (c) 2014 c0ff3m4r <l34k@bk.ru>
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
+ */
+/* Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -27,27 +26,27 @@
  * THE SOFTWARE.
  */
 
-function clear_selection(){
-    if (window.getSelection) {
-      if (window.getSelection().empty) {  // Chrome
-        window.getSelection().empty();
-      } else if (window.getSelection().removeAllRanges) {  // Firefox
-        window.getSelection().removeAllRanges();
-      }
-    } else if (document.selection) {  // IE?
-      document.selection.empty();
-    }
-}
+
 
 /**
  * @constructor
- * @param {Element|string} table The table element or its Id.
+ * @param {HTMLElement|string} table The table element or its Id.
  * @param {Object} options       Options
  * @export 
  */
 var SelecTable = function(table, options)
 {
-    var checkbox, row_i, cb_i;
+    /** @type{HTMLElement} */
+    var checkbox
+    /** @type{!NodeList} */
+    var inputs
+    /** @type{number} */
+    var row_i;
+    /** @type{number} */
+    var cb_i;
+ 
+    /** @type{!Object} */
+    var sTable = this;
     
     /** @dict */
     this.defaults = {
@@ -58,7 +57,7 @@ var SelecTable = function(table, options)
     }
 
     // parse options to this.config
-    /** @type {!Object} */
+    /** @dict */
     this.config = {}
     for (variable in this.defaults)
     {
@@ -68,128 +67,247 @@ var SelecTable = function(table, options)
             this.config[variable] = this.defaults[variable];
     }
 
-    if(this.config.cssFocused)
-        this.reFocused = new RegExp("(?:^|\\s)"+ this.config.cssFocused +"(?!\\S)","g");
-    if(this.config.cssSelected)
-        this.reSelected = new RegExp("(?:^|\\s)"+ this.config.cssSelected +"(?!\\S)","g");
+    function clear_selection(){
+        if (window.getSelection) {
+          if (window.getSelection().empty) {  // Chrome
+            window.getSelection().empty();
+          } else if (window.getSelection().removeAllRanges) {  // Firefox
+            window.getSelection().removeAllRanges();
+          }
+        } else if (document.selection) {  // IE?
+          document.selection.empty();
+        }
+    }
+
+    /** @this{!HTMLElement} */
+    function checkboxOnclick(e)
+    {
+            // prevent row from beiing clicked
+            e.stopPropagation();
+            var index = this['row'];
+            if(this.checked)
+                sTable.select(index, true);
+            else
+                sTable.unselect(index);
+    }
+
+    
+    /**
+     * @type{RegExp|null}
+     * @private
+     */
+    this.reFocused = null;
+
+    /**
+     * @type{RegExp|null}
+     * @private
+     */
+    this.reSelected = null;
+
+    if(this.config['cssFocused'])
+    {
+        this.reFocused = new RegExp("(?:^|\\s)"+ this.config['cssFocused'] +"(?!\\S)","g");
+    }
+
+    if(this.config['cssSelected'])
+        this.reSelected = new RegExp("(?:^|\\s)"+ this.config['cssSelected'] +"(?!\\S)","g");
 
     if (typeof table == "string")
-        this.table = document.getElementById(table);
-    else 
-        this.table = table;
-
-    // assuming we have only one body
-    this.rows = this.table.tBodies[0].rows;
-    
-    /** @type {?number} */
-    this.selected = null;
-    /** @type {number} */
-    this.selectedCount = 0;
-    // configure checkboxes
-
-
-
-    if(this.config.allCheckbox)
     {
-        if (typeof this.config.allCheckbox == "string")
-            this.config.allCheckbox = document.getElementById(this.config.allCheckbox);
+        table = document.getElementById(table);
+        if(table === null) return;
+    }
+    /** @type {HTMLElement} */
+    this.table = table;
+    
+    /** @type {Array.<HTMLElement>} */
+    var rows = table.tBodies[0].rows;
+    
+    /** @type {?HTMLElement}
+     *  @private
+     */
+    this.selected = null;
 
-        this.config.allCheckbox.onchange = this.getAllCheckboxOnchange();
+    /**
+     * @type {number}
+     * @private
+     */
+    this.selectedCount = 0;
+
+    /** @type {HTMLElement} */
+    var all_checkbox = this.config['allCheckbox'];
+    // configure checkboxes
+    if(all_checkbox)
+    {
+        if (typeof all_checkbox == "string")
+            all_checkbox = document.getElementById(this.config['allCheckbox']);
+
+        all_checkbox.onchange = function()
+        {
+            if(this.checked)
+            {
+                sTable.selectAll()
+            }else{
+                sTable.unselectAll()
+            }
+        };
     } 
 
-    for(row_i=0; row_i<this.rows.length; row_i++)
+    for(row_i=0; row_i<rows.length; row_i++)
     {
-        checkbox = this.rows[row_i].getElementsByTagName('input');
-        for(cb_i=0; cb_i < checkbox.length && checkbox[cb_i].type != "checkbox"; cb_i++){}
-        checkbox = checkbox[cb_i];
-        this.rows[row_i].setAttribute('unselectable', 'on'); // IE fix
-        checkbox.onclick = this.getCheckboxOnclick();
-        if(checkbox.checked)
-            this.select(row_i, true);
-        this.rows[row_i].onclick = this.getRowOnclick()
-        this.rows[row_i].checkbox = checkbox;
-        this.rows[row_i].checkbox.row = this.rows[row_i];
+        inputs = rows[row_i].getElementsByTagName('input');
+        rows[row_i]['checkbox'] = null;
+        for(cb_i=0; cb_i < inputs.length; cb_i++){
+            if(inputs[cb_i].type == "checkbox"){
+                
+                inputs[cb_i].onclick = checkboxOnclick;
+                
+                if(inputs[cb_i].checked)
+                {
+                    this.select(row_i, true);
+                }
+                inputs[cb_i]['row'] = rows[row_i]
+                rows[row_i]['checkbox'] = inputs[cb_i];
+                break;
+            }
+        }
+        rows[row_i].setAttribute('unselectable', 'on'); // IE fix
+        
+        /**
+         * The onclick function for rows
+         */
+        rows[row_i].onclick = function(e)
+        {
+            var row;
+            if(!e) e = event;
+            if (e.ctrlKey == 1) {
+                sTable.toggle(this);
+            }else if (e.shiftKey == 1){
+                row = sTable.getSelectedRow();
+                if (row !== null)  sTable.selectRange(row, this);
+            }else{
+                // select it if it wasn't selected already
+                // or if the object wasn't the only one
+                if(!sTable.getRowIsSelected(this) || sTable.selectedCount > 1)
+                    sTable.selectOnly(this);
+                else
+                    sTable.unselectAll();
+            }
+            if (e.shiftKey == 1)
+            {
+                // if there was something selected
+                // we clear it.
+                clear_selection();
+            }
+        }
+        
     }
+    /** @type {Array.<HTMLElement>} */
+    this.rows = rows;
 }
 
 /**
  * Select a row.
- * @param {!Element|number} index The row number or object to select.
+ *
+ * @param {!HTMLElement|number} index The row number or object to select.
  * @param {boolean=} changefocus Change the focus to this element?.
- * @export 
  */
 SelecTable.prototype.select = function(index, changefocus){
     if(typeof(changefocus) === 'undefined') changefocus = true;
-    index = this.getRowIndex(index);
+    index = this._getRowIndex(index);
+    /** @type{HTMLElement} */
+    var row = this.rows[index];
+    /** @type{HTMLElement} */
+    var checkbox = row['checkbox'];
+
     if (changefocus){
-        if(this.config.cssFocused)
+        if(this.reFocused)
         {
             if (this.selected != null)
             {
                 this.selected.className = this.selected.className.replace(this.reFocused, "");
             }
-            this.rows[index].className += ' ' + this.config.cssFocused;
+            row.className += ' ' + this.config['cssFocused'];
         }
         this.selected = this.rows[index];
-        if (this.config.focusCheckbox)
-            this.rows[index].checkbox.focus();
+        if (this.config['focusCheckbox'] && checkbox)
+        {
+            checkbox.focus();
+        }
     }
-    if (this.config.cssSelected)
-        this.rows[index].className += ' ' + this.config.cssSelected;
-    if(!this.rows[index].checkbox.checked)
-        // increment counter only if it wasn't checked
-        this.selectedCount += 1;
-    this.rows[index].checkbox.checked = true;
+    if (this.reSelected) row.className += ' ' + this.config['cssSelected'];
+    if(checkbox)
+    {
+        if(!checkbox.checked)
+            // increment counter only if it wasn't checked
+            this.selectedCount ++;
+        checkbox.checked = true;
+    }
 };
 
 /**
- * @param {!Element|number} index The row number or object to unselect.
- * @export 
+ * @param {!HTMLElement|number} index The row number or object to unselect.
  */
 SelecTable.prototype.unselect = function(index)
 {
-    index = this.getRowIndex(index);
-    if (this.config.cssSelected)
+    index = this._getRowIndex(index);
+    /** @type{HTMLElement} */
+    var row = this.rows[index];
+    /** @type{HTMLElement} */
+    var checkbox = row['checkbox'];
+    if (this.reSelected)
     {
-        this.rows[index].className = this.rows[index].className.replace(this.reSelected, "");
+        row.className = row.className.replace(this.reSelected, "");
     }
-    if(this.rows[index].checkbox.checked)
-        // decrement counter only if it was checked
-        this.selectedCount -= 1;
-    this.rows[index].checkbox.checked = false;
+    if(checkbox)
+    {
+        if(checkbox.checked)
+            // decrement counter only if it was checked
+            this.selectedCount --;
+        checkbox.checked = false;        
+    }
 };
 
 /**
- * @param {!Element|number} index The row number or object to toggle.
- * @export 
+ * @param {!HTMLElement|number} index The row number or object to toggle.
  */
 SelecTable.prototype.toggle = function(index)
 {
-    index = this.getRowIndex(index);
-    if(this.rows[index].checkbox.checked) this.unselect(index);
+    index = this._getRowIndex(index);
+    if(this.rows[index]['checkbox'].checked) this.unselect(index);
     else this.select(index, true);
 };
 
 
 /**
- * @param {!Element|number} row The row number or object to unselect.
+ * @param {!HTMLElement|number} row The row number or object to unselect.
+ * @private
  */
-SelecTable.prototype.getRowIndex = function(row){
-    if (typeof o === 'number') return row;
-    if (typeof row.rowIndex == "undefined") return row;
+SelecTable.prototype._getRowIndex = function(row){
+    if (typeof row === 'number') return row;
+    if(!row || typeof row.nodeType !== 'number' && row.nodeType == 3) throw row;
     return row.rowIndex - this.table.tHead.rows.length;
 }
 
 
 /**
- * @param {!Element|number} row The row number or object to unselect.
- * @export 
+ * @param {!HTMLElement|number} row
+ * @return {boolean} 
  */
  SelecTable.prototype.getRowIsSelected = function(row)
 {
-    return this.rows[this.getRowIndex(row)].checkbox.checked;
+    return this.rows[this._getRowIndex(row)]['checkbox'].checked;
 }
 
+
+/**
+ * Returns the currently selected row.
+ * @return{?HTMLElement}
+ */
+SelecTable.prototype.getSelectedRow = function()
+{
+    return this.selected;
+}
 
 /**
  * Select all 
@@ -201,44 +319,28 @@ SelecTable.prototype.selectAll = function()
 };
 
 /**
- * Get Onchange Function for the checkbox which controlls
- * all rows. 
- */
-SelecTable.prototype.getAllCheckboxOnchange = function()
-{
-    var table = this
-    return function()
-{
-        if(this.checked)
-        {
-            table.selectAll()
-        }else{
-            table.unselectAll()
-        }
-    }
-}
-/**
- *
- * @param {!Element|number} index
+ * @param {!HTMLElement|number} index
  */
 SelecTable.prototype.selectOnly = function(index)
 {
-    index = this.getRowIndex(index);
+    index = this._getRowIndex(index);
     this.unselectAll();
     this.select(index);
 }
 /**
- *
- * @param {!Element|number} start
- * @param {!Element|number} stop
+ * @param {!HTMLElement|number} start
+ * @param {!HTMLElement|number} stop
+ * @private
  */
 SelecTable.prototype.selectRange = function(start, stop)
 {
     var i, a=1;
-    start = this.getRowIndex(start);
-    stop = this.getRowIndex(stop);
-    if(start > stop) a = -1;
-    for (i = start; i != stop; i += a) {
+    /** @type{number} */
+    var start_index = this._getRowIndex(start);
+    /** @type{number} */
+    var stop_index = this._getRowIndex(stop);
+    if(start_index > stop_index) a = -1;
+    for (i = start_index; i != stop_index; i += a) {
         this.select(i, false);
     };
     this.select(stop, true);
@@ -250,46 +352,9 @@ SelecTable.prototype.unselectAll = function()
         this.unselect(i);
 }
 
-
-SelecTable.prototype.getRowOnclick = function()
-{
-    var table = this;
-    return function(e){
-        //e.stopPropagation();
-        // select functionallity
-        if (event.ctrlKey == 1) {
-            table.toggle(this);
-        }else if (event.shiftKey == 1){
-            if (table.selected != null)
-                table.selectRange(table.selected, this);
-        }else{
-            // select it if it wasn't selected already
-            // or if the object wasn't the only one
-            if(!table.getRowIsSelected(this) || table.selectedCount > 1)
-                table.selectOnly(this);
-            else
-                table.unselectAll();
-        }
-        if (event.shiftKey == 1)
-            // if there was something selected
-            // we clear it.
-            clear_selection();
-    }
-}
-
-SelecTable.prototype.getCheckboxOnclick = function()
-{
-    var table = this;
-    return function(e)
-    {
-
-        e.stopPropagation();
-        var index = this.row;
-        if(this.checked)
-            table.select(index, true);
-        else
-            table.unselect(index);
-    }
-}
-
+// Export
 window['SelecTable'] = SelecTable;
+Select.prototype['getSelectedRow'] = SelecTable.prototype.getSelectedRow;
+// SelecTable.prototype['select'] = SelecTable.prototype.select;
+// SelecTable.prototype['unselect'] = SelecTable.prototype.unselect;
+// SelecTable.prototype['toggle'] = SelecTable.prototype.toggle;
