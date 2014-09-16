@@ -368,7 +368,7 @@ SelecTable.prototype.unselectAll = function()
 
 // Export
 window['SelecTable'] = SelecTable;
-Select.prototype['getSelectedRow'] = SelecTable.prototype.getSelectedRow;
+window['SelecTable'].prototype['getSelectedRow'] = SelecTable.prototype.getSelectedRow;
 // SelecTable.prototype['select'] = SelecTable.prototype.select;
 // SelecTable.prototype['unselect'] = SelecTable.prototype.unselect;
 // SelecTable.prototype['toggle'] = SelecTable.prototype.toggle;
