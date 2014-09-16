@@ -18,7 +18,7 @@
 
 </head>
 
-<body>
+<body onload="init_table()">
 
   <div class="wrapper">
     <header>
@@ -96,6 +96,89 @@ clicking on it and marked by a user defined class (by default <code>class="selec
       <span class="o">-</span><span class="n">webkit</span><span class="o">-</span><span class="n">user</span><span class="o">-</span><span class="n">select</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span> <span class="c">/* Webkit (Safari, Chrome) */</span>
   <span class="p">}</span>
 </pre></div>
+        
+<h2>Example</h2>
+
+Here an example of a table. Just to make sure you understand what's this all
+about.
+
+<table class="table" id="my-selectable">
+  <thead>
+    <tr>
+      <th width="1%"><input type="checkbox" id="select_all_the_rows" /></th>
+      <th>Name</th>
+      <th>Street</th>
+      <th>City</th>
+      <th>Country</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>M. Schuhmacher</td>
+      <td>Dreib&uuml;ndenstr. 102</td>
+      <td>Z&uuml;rich</td>
+      <td>CH</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>J. Pawlak</td>
+      <td>ul. Owidiusza 79</td>
+      <td>Poznań</td>
+      <td>CH</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>A. Sandstr&ouml;m</td>
+      <td>Stallstigen 1</td>
+      <td>Faker</td>
+      <td>SE</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>M. Schuhmacher</td>
+      <td>Dreib&uuml;ndenstr. 102</td>
+      <td>Z&uuml;rich</td>
+      <td>CH</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>J. Pawlak</td>
+      <td>ul. Owidiusza 79</td>
+      <td>Poznań</td>
+      <td>CH</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>A. Sandstr&ouml;m</td>
+      <td>Stallstigen 1</td>
+      <td>Faker</td>
+      <td>SE</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>M. Schuhmacher</td>
+      <td>Dreib&uuml;ndenstr. 102</td>
+      <td>Z&uuml;rich</td>
+      <td>CH</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>J. Pawlak</td>
+      <td>ul. Owidiusza 79</td>
+      <td>Poznań</td>
+      <td>CH</td>
+    </tr>
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>A. Sandstr&ouml;m</td>
+      <td>Stallstigen 1</td>
+      <td>Faker</td>
+      <td>SE</td>
+    </tr>
+  </tbody>
+</table>
+
         </article>
       </div>
     </div>
@@ -116,6 +199,13 @@ clicking on it and marked by a user defined class (by default <code>class="selec
     <p class="name"></p>
   </div>
 
+<script src="javascripts/SelecTable.min.js"></script>
+<script type="application/javascript">
+function init_table()
+{
+  var st = new SelecTable("my-selectable", {'allCheckbox': 'select_all_the_rows'});
+}
+</script>
   
 </body>
 </html>
